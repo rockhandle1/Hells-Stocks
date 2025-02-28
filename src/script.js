@@ -22,7 +22,7 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 let stockDict = {
     candy: {
         name: "Free Candy",
-        successful_chance: 0,
+        successful_chance: 70,
         current_value: 1000,
         yesterday_value: undefined,
         bankrupt: 0,
@@ -47,12 +47,12 @@ let stockDict = {
 let news = {
     0: {
         content: `Black Suit Games released a new game today! It was a success!<br><hr>`,
-        chmod: -60,
+        chmod: 60,
         key: stockDict.bsuit
     },
     1: {
         content: `Black Suit Games released a new game today! It was a disaster!<br><hr>`,
-        chmod: -5,
+        chmod: -25,
         key: stockDict.bsuit
     },
     2: {
@@ -62,7 +62,7 @@ let news = {
     },
     3: {
         content: `Free Candy launches a large ad campaign<br><hr>`,
-        chmod: -10,
+        chmod: 10,
         key: stockDict.candy
     }
 }

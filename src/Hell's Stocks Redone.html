@@ -201,7 +201,8 @@
             bankrupt: 0,
             invested: 0,
             stockProfit: 0,
-            shares: 0
+            shares: 0,
+            tag: "candy"
         },
         bsuit: {
             name: "Black Suit Games",
@@ -211,7 +212,8 @@
             bankrupt: 0,
             invested: 0,
             stockProfit: 0,
-            shares: 0
+            shares: 0,
+            tag: "bsuit"
         }
     }
 
@@ -219,22 +221,22 @@
         0: {
             content: `Black Suit Games released a new game today! It was a success!<br><hr>`,
             chmod: 60,
-            isBsuit: 1
+            tag: "bsuit"
         },
         1: {
             content: `Black Suit Games released a new game today! It was a disaster!<br><hr>`,
             chmod: -5,
-            isBsuit: 1
+            tag: "bsuit"
         },
         2: {
             content: `Free Candy in trouble with the law, police say it's a front for drugs<br><hr>`,
             chmod: -20,
-            isCandy: 1
+            tag: "candy"
         },
         3: {
             content: `Free Candy launches a large ad campaign<br><hr>`,
             chmod: 10,
-            isCandy: 1
+            tag: "candy"
         }
     }
 
@@ -245,6 +247,12 @@
     }
 
     //Gameloop Functions
+    function iterateKeys(logic) {
+        for(const key of Object.keys(stockDict)) {
+            const currentKey = stockDict[key];
+            logic(currentKey)
+        }
+    }
     function stockvalcalc(successful_chance = 50, current_value, MaxChangeAmount) {
         const rng = Round(Math.random() * 100)
         let stockvalchange = clamp((Round(Math.random() * MaxChangeAmount)), MinChangeAmount, 50000)
@@ -266,26 +274,19 @@
     }
 
     function updateShares(){
-        if(Math.floor((document.getElementById("candyInvest").value / stockDict.candy.current_value)) > 0){
-            document.getElementById("candyShares").innerHTML = "You are buying " + Math.floor((document.getElementById("candyInvest").value / stockDict.candy.current_value)) + " shares"
-        } else{
-            document.getElementById("candyShares").innerHTML = ""
-        }        
-        if(Math.floor((document.getElementById("bsuitInvest").value / stockDict.bsuit.current_value)) > 0){
-            document.getElementById("bsuitShares").innerHTML = "You are buying " + Math.floor((document.getElementById("bsuitInvest").value / stockDict.bsuit.current_value)) + " shares"
-        } else{
-            document.getElementById("bsuitShares").innerHTML = ""
+        function updateSharesLogic(key) {
+            if(Math.floor((document.getElementById(key.tag + "Invest").value / key.current_value)) > 0){
+                document.getElementById(key.tag + "Shares").innerHTML = "You are buying " + Math.floor((document.getElementById(key.tag + "Invest").value / key.current_value)) + " shares"
+            } else document.getElementById(key.tag + "Shares").innerHTML = ""
         }
+        iterateKeys(updateSharesLogic);
     }
 
     function invest(clicked_id){
-        //for (const tag of Object.keys(stockDict))
-        if(clicked_id == "bsuitInvest" && stockDict.bsuit.bankrupt == 0){
-            currentGold = Math.floor(currentGold - (stockDict.bsuit.current_value * Math.floor((document.getElementById("bsuitInvest").value / stockDict.bsuit.current_value))))
-        } else if(stockDict.candy.bankrupt == 0){
-            console.log("clicked");
-            currentGold = Math.floor(currentGold - (stockDict.candy.current_value * Math.floor((document.getElementById("candyInvest").value / stockDict.candy.current_value))))
+        function updateInvest (key) {
+            if (clicked_id == key.tag + "Invest" && key.bankrupt == 0) currentGold = Math.floor(currentGold - (key.current_value * Math.floor((document.getElementById(key.tag + "Invest").value / key.current_value))))
         }
+        iterateKeys(updateInvest);
         GameLoop.updateStats()
     }
     //Main javascript
@@ -310,8 +311,10 @@
             document.getElementById("gold").innerHTML = `Gold: ${currentGold}`;
             document.getElementById("day").innerHTML = `Day: ${currentDay}`;
             document.getElementById("totalProfit").innerHTML = `Total Profit: ${totalProfit}`;
-            document.getElementById("bsuit").innerHTML = `Black Suit Games: ${stockDict.bsuit.current_value}`;
-            document.getElementById("candy").innerHTML = `Free Candy: ${stockDict.candy.current_value}`;
+            function updateStockHTML(key) {
+                document.getElementById(key.tag).innerHTML = `${key.name}: ${key.current_value}`
+            }
+            iterateKeys(updateStockHTML);
             document.getElementById("totalProfit").innerHTML = `Total Profit: ${totalProfit}`;
             document.getElementById("stockChB").innerHTML = `Stock Chance Boost: ${stockChB}%`;
             if (newsGenerated == 1) document.getElementById("newsBody").innerHTML = `${newsBody}` + document.getElementById("newsBody").innerHTML
@@ -326,25 +329,25 @@
         }
         endDay() {
             console.log("Day ended");
-            for (const key of Object.keys(stockDict)){
-                const currentKey = stockDict[key]
-                if(currentKey.bankrupt == 0){
-                    currentKey.yesterday_value = currentKey.current_value;
-                    currentKey.successful_chance = clamp(currentKey.successful_chance + successChanceMult, 0, 100);
-                    const stockvalchange = stockvalcalc(currentKey.successful_chance, currentKey.current_value, Math.min(currentKey.current_value / 2, 50000));
-                    currentKey.current_value = Math.max(currentKey.current_value + stockvalchange, 0);
-                    if(currentKey.invested == 1) {
-                        currentKey.stockProfit = currentKey.stockProfit + stockvalchange;
-                        totalProfit = totalProfit + currentKey.current_value - currentKey.yesterday_value;
+            function dayEnd(key) {
+                if(key.bankrupt == 0){
+                    key.yesterday_value = key.current_value;
+                    key.successful_chance = clamp(key.successful_chance + successChanceMult, 0, 100);
+                    const stockvalchange = stockvalcalc(key.successful_chance, key.current_value, Math.min(key.current_value / 2, 50000));
+                    key.current_value = Math.max(key.current_value + stockvalchange, 0);
+                    if(key.invested == 1) {
+                        key.stockProfit = key.stockProfit + stockvalchange;
+                        totalProfit = totalProfit + key.current_value - key.yesterday_value;
                     } else {
-                        currentKey.stockProfit = 0
+                        key.stockProfit = 0
                     }
-                    if(currentKey.current_value == 0){
-                        currentKey.bankrupt = 1;
-                        currentKey.current_value = "BANKRUPT"
+                    if(key.current_value == 0){
+                        key.bankrupt = 1;
+                        key.current_value = "BANKRUPT"
                     }
                 }
             }
+            iterateKeys(dayEnd);
             currentDay = currentDay + 1;
             if(currentGold > 999999999){
                 stockChB = 10

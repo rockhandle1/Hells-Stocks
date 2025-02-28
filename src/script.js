@@ -16,6 +16,7 @@ let startingGold = 100000
 let currentGold = null
 let successChanceMult = 0
 let newsBody = ""
+const endDayButton = document.getElementById("endDayButton")
 const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 
 let stockDict = {
@@ -129,6 +130,15 @@ function runGameLoop() {
     timer = setInterval(GameLoop.looper(), 100);
     timer
 }
+
+document.onkeyup = event => {
+    if(event.code == 'Numpad0') {
+        endDayButton.click();
+        endDayButton.style.removeProperty("transform");
+    }
+}
+document.onkeydown = event => { if(event.code == 'Numpad0') endDayButton.style.transform = "translateY(1rem)" }
+
 class GameLoop {
     constructor() {
 
@@ -155,7 +165,7 @@ class GameLoop {
     }
     endDay() {
         console.log("Day ended");
-        function dayEnd(key) {
+        function endDayLogic(key) {
             if(key.bankrupt == 0){
                 key.yesterday_value = key.current_value;
                 key.successful_chance = clamp(key.successful_chance + successChanceMult, 0, 100);
@@ -173,7 +183,7 @@ class GameLoop {
                 }
             }
         }
-        iterateKeys(dayEnd);
+        iterateKeys(endDayLogic);
         currentDay = currentDay + 1;
         if(currentGold > 999999999){
             stockChB = 10

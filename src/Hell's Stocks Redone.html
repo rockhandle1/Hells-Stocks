@@ -87,10 +87,9 @@
         float: left;
         width: 15%;
         background: none;
-        padding: 20px;
+        padding: 1rem;
         z-index: 998;
         text-align: left;
-        position: left
     }
     #gameSpace{
         color: #fff;
@@ -107,18 +106,34 @@
         position: fixed;
         z-index: 998
     }
+
+    #newsTitle {
+        position: sticky;
+        top: 0rem;
+        font-size: 3rem;
+    }
+
     #news{
+        border-radius: 1rem;
         text-align: center;
+        position: fixed;
+        overflow-y: auto;
+        width: 20rem;
+        display: flex;
+        flex-direction: column;
+        height: 30rem;
         font-family: var(--font);
         color: #fff;
         font-size: 40px;
         z-index: 0;
         background: #1b1d37;
-        margin-top: 70rem;
+        top: 20rem;
+        right: 1rem;
+        
     }
     #newsBody{
         background: #1b1d37;
-        padding: 2rem;
+        padding: 1rem;
         font-size: 24px !important;
         text-align: center
     }

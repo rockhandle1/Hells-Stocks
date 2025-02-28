@@ -22,7 +22,7 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 let stockDict = {
     candy: {
         name: "Free Candy",
-        successful_chance: 100,
+        successful_chance: 0,
         current_value: 1000,
         yesterday_value: undefined,
         bankrupt: 0,
@@ -33,7 +33,7 @@ let stockDict = {
     },
     bsuit: {
         name: "Black Suit Games",
-        successful_chance: 10,
+        successful_chance: 0,
         current_value: 1000000,
         yesterday_value: undefined,
         bankrupt: 0,
@@ -47,23 +47,23 @@ let stockDict = {
 let news = {
     0: {
         content: `Black Suit Games released a new game today! It was a success!<br><hr>`,
-        chmod: 60,
-        tag: "bsuit"
+        chmod: -60,
+        key: stockDict.bsuit
     },
     1: {
         content: `Black Suit Games released a new game today! It was a disaster!<br><hr>`,
         chmod: -5,
-        tag: "bsuit"
+        key: stockDict.bsuit
     },
     2: {
         content: `Free Candy in trouble with the law, police say it's a front for drugs<br><hr>`,
         chmod: -20,
-        tag: "candy"
+        key: stockDict.candy
     },
     3: {
         content: `Free Candy launches a large ad campaign<br><hr>`,
-        chmod: 10,
-        tag: "candy"
+        chmod: -10,
+        key: stockDict.candy
     }
 }
 
@@ -89,11 +89,15 @@ function stockvalcalc(successful_chance = 50, current_value, MaxChangeAmount) {
     return stockvalchange
 }
 
-function newsgenerator() {
-    let rng2 = Round(Math.random() * 100);
+function newsgenerator(regenerate = false) {
+    let rng2 = regenerate ? 90 : Round(Math.random() * 100);
     let rng3 = Math.floor(Math.random() * Object.keys(news).length);
     console.log(rng3);
     if(rng2 > 90){
+        if (news[rng3].key.bankrupt == 1) {
+            try{this(true)} catch(e){console.warn("Cannot regenerate news. Error: " + e)};
+            return
+        }
         newsBody = `Day ${currentDay}: ` + news[rng3].content;
         successChanceMult = news[rng3].chmod;
         newsGenerated = 1

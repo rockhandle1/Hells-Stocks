@@ -1,0 +1,109 @@
+:root{
+    --font: Calibri;
+    --font-size: 24px;
+    --gamespacepadding: 5rem;
+    background-color: #2b2d46;
+}
+#gameTitle{
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    background: #1b1d37;
+    font-size: 40px;
+    padding: 0px;
+    text-align: center;
+    z-index: 997;
+    color: #fff
+}
+#navButtons {        
+    font-family: "Roboto Condensed", sans-serif;
+    font-size: 30px;
+    background: #fff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: none;
+}
+#pageLinks {
+    float: left;
+    width: 15%;
+    background: none;
+    padding: 1rem;
+    z-index: 998;
+    text-align: left;
+}
+#gameSpace{
+    color: #fff;
+    z-index: 996;
+    font-family: var(--font);
+    font-size: 34px;
+    float: left;
+    padding-left: var(--gamespacepadding)
+}
+#buttonParent{
+    float: right;
+    right: 1rem;
+    top: 10rem;
+    position: fixed;
+    z-index: 998
+}
+
+#newsTitle {
+    position: sticky;
+    top: 0rem;
+    font-size: 3rem;
+    background-color: #1b1d37
+}
+
+#news{
+    border-radius: 1rem;
+    text-align: center;
+    position: fixed;
+    overflow-y: auto;
+    width: 20rem;
+    display: flex;
+    flex-direction: column;
+    height: 30rem;
+    font-family: var(--font);
+    color: #fff;
+    font-size: 40px;
+    z-index: 0;
+    background: #1b1d37;
+    top: 20rem;
+    right: 1rem;
+    
+}
+#newsBody{
+    background: #0000;
+    padding: 1rem;
+    font-size: 24px !important;
+    text-align: center
+}
+#button1 {
+    transition: transform 0.1s ease;
+    border-radius: 1rem;
+    border-color: #fff;
+    text-align: center;
+    background: #1b1d37;
+    font-family: var(--font);
+    font-size: 25px;
+    padding-left: 4rem;
+    padding-right: 4rem;
+    color: #fff;
+}
+
+#button1:hover {
+    background: color-mix(in srgb, #1b1d37, #fff 10%);
+    cursor: pointer;
+}
+
+#button1:active {
+    transform: translateY(1rem);
+}
+
+#stocksListTitle {
+    font-size: 60px !important
+}
+#stocksList {
+    color: #fff;
+    font-family: var(--font);
+    float: bottom;
+    font-size: 20px;
+}

@@ -38,12 +38,14 @@
             <hr>
             <h2 id="bsuit">ERROR</h2>
             <h2 id="bsuitProfit">Profit: </h2>
-            <h2>Invest: <input type="number" id="bsuitInvest" oninput="updateShares()" value=""><button onclick="invest(bsuitInvest.id)">Invest</button><button onclick="">Sell All</button></h2>
+            <h2 id="bsuitOwnedShares">Owned Shares: </h2>
+            <h2>Invest: <input type="number" id="bsuitInvest" oninput="updateShares()" value=""><button onclick="invest(bsuitInvest.id)">Invest</button><button id="bsuitSell" onclick="sellAll(bsuitSell.id)">Sell All</button></h2>
             <p id="bsuitShares"></p>
             <hr>
             <h2 id="candy">ERROR</h2>
-            <h2 id="candyProfit"><Profit: </h2>
-            <h2>Invest: <input type="number" id="candyInvest" oninput="updateShares()" value=""><button onclick="invest(candyInvest.id)">Invest</button><button onclick="">Sell All</button></h2>
+            <h2 id="candyProfit">Profit: </h2>
+            <h2 id="candyOwnedShares">Owned Shares: </h2>
+            <h2>Invest: <input type="number" id="candyInvest" oninput="updateShares()" value=""><button onclick="invest(candyInvest.id)">Invest</button><button id="candySell" onclick="sellAll(candySell.id)">Sell All</button></h2>
             <p id="candyShares"></p>
         </section>
     </section>

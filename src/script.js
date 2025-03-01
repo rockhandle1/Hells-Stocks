@@ -7,13 +7,13 @@ let successful_chance = null
 let current_value = null
 
 //Gameloop variables
+let bankruptNum = 0
 let newsGenerated = 0
 let totalProfit = 0
 let stockChB = 0
 let MinChangeAmount = 1
 let MaxChangeAmount = null
-let startingGold = 100000
-let currentGold = null
+let currentGold = 100000
 let successChanceMult = 0
 let newsBody = ""
 const endDayButton = document.getElementById("endDayButton")
@@ -22,12 +22,12 @@ const clamp = (num, min, max) => Math.min(Math.max(num, min), max)
 let stockDict = {
     candy: {
         name: "Free Candy",
-        successful_chance: 70,
+        successful_chance: 60,
         current_value: 1000,
         yesterday_value: undefined,
         bankrupt: 0,
         invested: 0,
-        stockProfit: 0,
+        profit: 0,
         shares: 0,
         tag: "candy"
     },
@@ -38,7 +38,7 @@ let stockDict = {
         yesterday_value: undefined,
         bankrupt: 0,
         invested: 0,
-        stockProfit: 0,
+        profit: 0,
         shares: 0,
         tag: "bsuit"
     }
@@ -92,16 +92,16 @@ function stockvalcalc(successful_chance = 50, current_value, MaxChangeAmount) {
 function newsgenerator(regenerate = false) {
     let rng2 = regenerate ? 90 : Round(Math.random() * 100);
     let rng3 = Math.floor(Math.random() * Object.keys(news).length);
-    console.log(rng3);
+    //console.log(rng3);
     if(rng2 > 90){
         if (news[rng3].key.bankrupt == 1) {
-            try{this(true)} catch(e){console.warn("Cannot regenerate news. Error: " + e)};
+            try{this(true)} catch(e){console.warn("Cannot regenerate news. " + e)};
             return
         }
         newsBody = `Day ${currentDay}: ` + news[rng3].content;
         successChanceMult = news[rng3].chmod;
         newsGenerated = 1
-    } else newsGenerated = 0;
+    }
 }
 
 function updateShares(){
@@ -115,10 +115,25 @@ function updateShares(){
 
 function invest(clicked_id){
     function updateInvest (key) {
-        if (clicked_id == key.tag + "Invest" && key.bankrupt == 0) currentGold = Math.floor(currentGold - (key.current_value * Math.floor((document.getElementById(key.tag + "Invest").value / key.current_value))))
+        if (clicked_id == key.tag + "Invest" && key.bankrupt == 0) {
+            const sharesBought = Math.floor(document.getElementById(key.tag + "Invest").value / key.current_value);
+            currentGold = Math.floor(currentGold - (key.current_value * sharesBought));
+            key.shares = key.shares + sharesBought;
+        }
     }
     iterateKeys(updateInvest);
     GameLoop.updateStats()
+}
+
+function sellAll(clicked_id) {
+    function sellAllLogic(key) {
+        //console.log(clicked_id);
+        if (key.tag + "Sell" != clicked_id) return;
+        key.shares = 0;
+        currentGold = currentGold + key.profit;
+        key.profit = 0;
+    }
+    iterateKeys(sellAllLogic);
 }
 //Main javascript
 function runGameLoop() {
@@ -132,12 +147,12 @@ function runGameLoop() {
         GameLoop.run();
     }
     timer = setInterval(GameLoop.looper(), 100);
-    timer
+    timer;
 }
 
 document.onkeyup = event => {
     if(event.code == 'Numpad0') {
-        endDayButton.click();
+        GameLoop.endDay();
         endDayButton.style.removeProperty("transform");
     }
 }
@@ -152,34 +167,33 @@ class GameLoop {
         document.getElementById("day").innerHTML = `Day: ${currentDay}`;
         document.getElementById("totalProfit").innerHTML = `Total Profit: ${totalProfit}`;
         function updateStockHTML(key) {
-            document.getElementById(key.tag).innerHTML = `${key.name}: ${key.current_value}`
+            document.getElementById(key.tag).innerHTML = `${key.name}: ${key.current_value}`;
+            document.getElementById(key.tag + "Profit").innerHTML = `Profit: ${key.profit}`;
+            document.getElementById(key.tag + "OwnedShares").innerHTML = `Owned Shares: ${key.shares}`;
         }
         iterateKeys(updateStockHTML);
         document.getElementById("totalProfit").innerHTML = `Total Profit: ${totalProfit}`;
         document.getElementById("stockChB").innerHTML = `Stock Chance Boost: ${stockChB}%`;
-        if (newsGenerated == 1) document.getElementById("newsBody").innerHTML = `${newsBody}` + document.getElementById("newsBody").innerHTML
+        if (newsGenerated == 1) { document.getElementById("newsBody").innerHTML = `${newsBody}` + document.getElementById("newsBody").innerHTML; newsGenerated = 0}
     }
     start() {
         console.log(`screen width: ${screen.width}, height: ${screen.height}`);
-        currentGold = startingGold;
         this.updateStats();
     }
     looper() {
         console.log("looping...");
     }
     endDay() {
-        console.log("Day ended");
         function endDayLogic(key) {
+            bankruptNum = 0;
             if(key.bankrupt == 0){
                 key.yesterday_value = key.current_value;
                 key.successful_chance = clamp(key.successful_chance + successChanceMult, 0, 100);
                 const stockvalchange = stockvalcalc(key.successful_chance, key.current_value, Math.min(key.current_value / 2, 50000));
                 key.current_value = Math.max(key.current_value + stockvalchange, 0);
-                if(key.invested == 1) {
-                    key.stockProfit = key.stockProfit + stockvalchange;
+                if(key.shares > 0) {
+                    key.profit = key.profit + stockvalchange;
                     totalProfit = totalProfit + key.current_value - key.yesterday_value;
-                } else {
-                    key.stockProfit = 0
                 }
                 if(key.current_value == 0){
                     key.bankrupt = 1;
@@ -187,7 +201,21 @@ class GameLoop {
                 }
             }
         }
+        function bailOutCompanies(key) {
+            if(key.bankrupt == 1) bankruptNum++;
+            console.log(bankruptNum);
+            if(bankruptNum == 2) {
+                function allBankruptLogic(key) {
+                    key.bankrupt = 0;
+                    key.current_value = 20000;
+                }
+                iterateKeys(allBankruptLogic);
+                newsBody = `Day ${currentDay}: All companies are bankrupt! The government has bailed out companies to help the economy!<br><hr>`;
+                newsGenerated = 1;
+            }
+        }
         iterateKeys(endDayLogic);
+        iterateKeys(bailOutCompanies);
         currentDay = currentDay + 1;
         if(currentGold > 999999999){
             stockChB = 10

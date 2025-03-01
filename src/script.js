@@ -1,12 +1,12 @@
 //Startup sequence variables
 let gamespace = document.getElementById("gameSpace")
 let gameloopExists = 0
-let timer = null
 let currentDay = 1
 let successful_chance = null
 let current_value = null
 
 //Gameloop variables
+let loop = false
 let bankruptNum = 0
 let newsGenerated = 0
 let totalProfit = 0
@@ -146,12 +146,12 @@ function runGameLoop() {
         GameLoop = new GameLoop();
         GameLoop.start();
         GameLoop.run();
+        GameLoop.looper();
     } else {
         GameLoop.start();
         GameLoop.run();
+        GameLoop.looper();
     }
-    timer = setInterval(GameLoop.looper(), 100);
-    timer;
 }
 
 document.onkeyup = event => {
@@ -185,7 +185,11 @@ class GameLoop {
         this.updateStats();
     }
     looper() {
-        console.log("looping...");
+        function loop() {
+            console.log("looping...");
+            if(loop == true) requestAnimationFrame(loop);
+        }
+        if(loop == true) requestAnimationFrame(loop);
     }
     endDay() {
         totalProfit = 0;
@@ -212,7 +216,7 @@ class GameLoop {
             if(bankruptNum == 2) {
                 function allBankruptLogic(key) {
                     key.bankrupt = 0;
-                    key.current_value = 20000;
+                    key.current_value = key.current_value > 0 ? key.current_value : 20000;
                 }
                 iterateKeys(allBankruptLogic);
                 newsBody = `Day ${currentDay}: All companies are bankrupt! The government has bailed out companies to help the economy!<br><hr>`;

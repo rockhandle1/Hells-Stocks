@@ -24,7 +24,7 @@ let stockDict = {
         name: "Free Candy",
         successful_chance: 60,
         current_value: 1000,
-        yesterday_value: undefined,
+        boughtPrice: 0,
         bankrupt: 0,
         invested: 0,
         profit: 0,
@@ -35,7 +35,7 @@ let stockDict = {
         name: "Black Suit Games",
         successful_chance: 0,
         current_value: 1000000,
-        yesterday_value: undefined,
+        boughtPrice: 0,
         bankrupt: 0,
         invested: 0,
         profit: 0,
@@ -118,7 +118,9 @@ function invest(clicked_id){
         if (clicked_id == key.tag + "Invest" && key.bankrupt == 0) {
             const sharesBought = Math.floor(document.getElementById(key.tag + "Invest").value / key.current_value);
             currentGold = Math.floor(currentGold - (key.current_value * sharesBought));
-            key.shares = key.shares + sharesBought;
+            key.boughtPrice = ((key.current_value * sharesBought) + (key.shares * key.boughtPrice)) / (key.shares + sharesBought);
+            key.shares += sharesBought;
+            console.log(key.boughtPrice);
         }
     }
     iterateKeys(updateInvest);
@@ -131,9 +133,11 @@ function sellAll(clicked_id) {
         if (key.tag + "Sell" != clicked_id) return;
         key.shares = 0;
         currentGold = currentGold + key.profit;
+        totalProfit -= key.profit;
         key.profit = 0;
     }
     iterateKeys(sellAllLogic);
+    GameLoop.updateStats();
 }
 //Main javascript
 function runGameLoop() {
@@ -184,6 +188,7 @@ class GameLoop {
         console.log("looping...");
     }
     endDay() {
+        totalProfit = 0;
         function endDayLogic(key) {
             bankruptNum = 0;
             if(key.bankrupt == 0){
@@ -192,8 +197,8 @@ class GameLoop {
                 const stockvalchange = stockvalcalc(key.successful_chance, key.current_value, Math.min(key.current_value / 2, 50000));
                 key.current_value = Math.max(key.current_value + stockvalchange, 0);
                 if(key.shares > 0) {
-                    key.profit = key.profit + stockvalchange;
-                    totalProfit = totalProfit + key.current_value - key.yesterday_value;
+                    key.profit = key.shares * (key.current_value - key.boughtPrice);
+                    totalProfit = totalProfit + key.profit;
                 }
                 if(key.current_value == 0){
                     key.bankrupt = 1;
@@ -218,7 +223,7 @@ class GameLoop {
         iterateKeys(bailOutCompanies);
         currentDay = currentDay + 1;
         if(currentGold > 999999999){
-            stockChB = 10
+            stockChB = 10;
         }
         newsgenerator();
         this.updateStats();
